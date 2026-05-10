@@ -12,12 +12,8 @@ const nextConfig = {
       },
     ],
   },
-  // Vercel-optimized settings
-  swcMinify: true,
-  compress: true,
   productionBrowserSourceMaps: false,
   reactStrictMode: true,
-  // Enable SWR for better caching
   headers: async () => {
     return [
       {
@@ -37,16 +33,6 @@ const nextConfig = {
             value: 'public, max-age=3600, immutable',
           },
         ],
-      },
-    ]
-  },
-  // Redirect www to non-www
-  redirects: async () => {
-    return [
-      {
-        source: '/:path*',
-        destination: '/:path*',
-        permanent: false,
       },
     ]
   },
