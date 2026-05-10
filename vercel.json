@@ -1,0 +1,20 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@supabase_url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase_anon_key",
+    "OAUTH_REDIRECT_BASE_URL": "@oauth_redirect_base_url"
+  },
+  "secretFiles": [
+    ".env.local"
+  ],
+  "functions": {
+    "app/api/**": {
+      "memory": 3008,
+      "maxDuration": 60
+    }
+  }
+}

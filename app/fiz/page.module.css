@@ -1,0 +1,837 @@
+/* app/fiz/page.module.css */
+
+/* ==================== CSS Variables ==================== */
+:root {
+  --primary-color: #ffffff;
+  --secondary-color: #ff6b9e;
+  --background-dark: #000000;
+  --text-color: #e0e0ff;
+}
+
+/* ==================== Global Body & Theme Classes ==================== */
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Space Mono', monospace;
+  background: var(--background-dark);
+  color: var(--text-color);
+  overflow: hidden;
+  cursor: none;
+}
+
+body.home-theme {
+  --primary-color: #00ced1;
+  --secondary-color: #ff6b9e;
+}
+
+body.hacker-theme {
+  --primary-color: #22c55e;
+  --secondary-color: #2dd4bf;
+}
+
+body.rain-theme {
+  --primary-color: #1e3a8a;
+  --secondary-color: #2563eb;
+}
+
+body.anime-theme {
+  --primary-color: #dc2626;
+  --secondary-color: #f87171;
+}
+
+body.car-theme {
+  --primary-color: #eab308;
+  --secondary-color: #facc15;
+}
+
+/* ==================== Core Layout ==================== */
+.container {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+:global(.hidden) {
+  display: none !important;
+}
+
+/* ==================== Background Video & Overlays ==================== */
+.backgroundVideo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.glitchOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+#hacker-overlay {
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+
+#snow-overlay {
+  mix-blend-mode: color-dodge;
+  opacity: 0.5;
+}
+
+/* ==================== Custom Cursor ==================== */
+.customCursor {
+  position: fixed;
+  width: 48px;
+  height: 48px;
+  background: url('/image.png') no-repeat center center;
+  background-size: contain;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  display: block;
+}
+
+/* ==================== Speaker Button (top right corner) ==================== */
+.speakerButton {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s;
+}
+
+.speakerButton:hover {
+  transform: scale(1.15);
+}
+
+.speakerButton svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+}
+/* ==================== Start Screen ==================== */
+.startScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  cursor: pointer;
+}
+
+.startText {
+  font-family: 'Courier New', monospace;
+  font-size: 28px;
+  color: #fff;
+  text-align: center;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ==================== Profile Block ==================== */
+.profileBlock {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 650px;
+  min-height: auto;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 30px;
+  border-radius: 15px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transform-style: preserve-3d;
+  pointer-events: auto;
+}
+
+.profileHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.profileContainer {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.profilePicture {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.profileInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.nameAndBadges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.profileName {
+  font-family: 'Angel Wish', sans-serif;
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #fff;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+}
+
+/* Badge group – no boxes, just icons */
+.badgeGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.badgeContainer {
+  position: relative;
+  pointer-events: auto;
+  display: inline-block;
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+}
+
+.badgeContainer .tooltip {
+  visibility: hidden;
+  width: 120px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 100;
+  bottom: 120%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.badgeContainer:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.badge {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s;
+}
+
+.badge:hover {
+  transform: scale(1.2);
+}
+
+.profileStatus {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 2px;
+  font-style: italic;
+}
+
+.discordActivity {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 4px 0;
+}
+
+.profileBio {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.profileFooter {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* ==================== Social Links ==================== */
+.socialLinks {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0;
+  margin: 5px 0;
+}
+
+.socialLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.socialLink:hover {
+  transform: translateY(-3px);
+}
+
+.socialIcon {
+  width: 40px;
+  height: 40px;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+  object-fit: contain;
+}
+
+.socialIcon:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
+}
+
+/* ==================== Visitor Counter ==================== */
+.visitorCounter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.visitorCounter:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.visitorIcon {
+  width: 14px;
+  height: 14px;
+  color: white;
+}
+
+.visitorCounter .tooltip {
+  visibility: hidden;
+  width: 100px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 100;
+  top: -30px;
+  left: 50%;
+  margin-left: -50px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 11px;
+}
+
+.visitorCounter:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ==================== Skills Block ==================== */
+.skillsBlock {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 820px;
+  min-height: 332px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 20px;
+  border-radius: 15px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  backdrop-filter: blur(10px);
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease-out;
+}
+
+.skillsTitle {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.skill {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.skillName {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skillIcon {
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+}
+
+.skillBarContainer {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.skillBar {
+  height: 100%;
+  border-radius: 5px;
+  width: 0%;
+  transition: width 2s;
+}
+
+#python-bar {
+  background: linear-gradient(67deg, #ff6b6b, #ff9f9f);
+}
+
+#html-bar {
+  background: linear-gradient(45deg, #4facfe, #00f2fe);
+}
+
+#golang-bar {
+  background: linear-gradient(30deg, #43e97b, #38f9d7);
+}
+
+/* ==================== Results Button ==================== */
+.resultsButtonContainer {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.resultsTheme {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s;
+}
+
+.resultsTheme:hover {
+  background: rgba(0, 0, 0, 0.9);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.resultsHint {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  width: 180px;
+  text-align: center;
+  pointer-events: none;
+  z-index: 25;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.resultsHint::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 10px 10px 10px;
+  border-style: solid;
+  border-color: transparent transparent rgba(0, 0, 0, 0.8) transparent;
+}
+
+/* ==================== Theme Buttons (hidden by default) ==================== */
+.controls {
+  position: fixed;
+  bottom: calc(50% - 240px - 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  display: none;                     /* keep hidden */
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
+}
+
+.themeButton {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+}
+
+.themeButton:hover {
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ==================== Bottom Control Bar (speaker + eye icon beside sliders) ==================== */
+.topControls {
+  position: fixed;
+  bottom: calc(50% - 240px - 60px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.volumeControl,
+.transparencyControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.volumeIcon,
+.transparencyIcon {
+  width: 20px;
+  height: 20px;
+  color: white;
+  stroke: white;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.volumeIcon:hover,
+.transparencyIcon:hover {
+  opacity: 0.8;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.3);
+  outline: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+}
+
+/* ==================== Keyframe Animations ==================== */
+@keyframes orbit {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fastOrbit {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes shine {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes led-glow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 400% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(35px, 9999px, 14px, 0); }
+  5% { clip: rect(88px, 9999px, 40px, 0); }
+  10% { clip: rect(60px, 9999px, 50px, 0); }
+  15% { clip: rect(55px, 9999px, 53px, 0); }
+  20% { clip: rect(89px, 9999px, 65px, 0); }
+  25% { clip: rect(52px, 9999px, 43px, 0); }
+  30% { clip: rect(28px, 9999px, 15px, 0); }
+  35% { clip: rect(40px, 9999px, 60px, 0); }
+  40% { clip: rect(80px, 9999px, 45px, 0); }
+  45% { clip: rect(90px, 9999px, 55px, 0); }
+}
+
+/* ==================== Responsive (max-width: 430px) ==================== */
+@media (max-width: 430px) {
+  .profileBlock,
+  .skillsBlock {
+    width: 90vw;
+    max-width: 350px;
+    min-height: auto;
+    padding: 10px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .profileHeader {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .profileContainer {
+    width: 70px;
+    height: 70px;
+  }
+
+  .profilePicture {
+    width: 70px;
+    height: 70px;
+  }
+
+  .profileInfo {
+    align-items: center;
+    text-align: center;
+  }
+
+  .nameAndBadges {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .profileName {
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  .badgeGroup {
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .badge {
+    width: 16px;
+    height: 16px;
+  }
+
+  .badgeContainer .tooltip {
+    width: 100px;
+    font-size: 11px;
+    margin-left: -50px;
+    bottom: 100%;
+  }
+
+  .profileStatus {
+    font-size: 11px;
+  }
+
+  .profileBio {
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .profileFooter {
+    flex-direction: row;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .socialLinks {
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .socialIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .visitorCounter {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .visitorIcon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .visitorCounter .tooltip {
+    width: 100px;
+    font-size: 10px;
+    margin-left: -50px;
+    top: -28px;
+  }
+
+  .skillsTitle {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .skillIcon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .skillName span {
+    font-size: 14px;
+  }
+
+  .controls {
+    bottom: 20px;
+    gap: 8px;
+    padding: 5px 8px;
+  }
+
+  .themeButton {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .topControls {
+    bottom: 70px;
+    gap: 10px;
+    padding: 6px 10px;
+  }
+
+  .volumeControl,
+  .transparencyControl {
+    gap: 6px;
+  }
+
+  .volumeIcon,
+  .transparencyIcon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .slider {
+    width: 60px;
+    height: 4px;
+  }
+
+  .slider::-webkit-slider-thumb {
+    width: 10px;
+    height: 10px;
+  }
+
+  .resultsButtonContainer {
+    top: 10px;
+  }
+
+  .resultsTheme {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .resultsHint {
+    width: 150px;
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+
+  .startText {
+    font-size: 14px;
+    padding: 0 10px;
+  }
+}
