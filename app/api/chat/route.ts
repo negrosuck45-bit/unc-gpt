@@ -65,8 +65,11 @@ const PUTER_CLAUDE_MODELS: Record<string, string> = {
   "claude-opus-4.6-fast": "claude-opus-4.6-fast",
 };
 
-const GROQ_KEYS = [
-];
+// Get Groq keys from environment or empty array
+const GROQ_KEYS = (process.env.GROQ_API_KEYS || process.env.GROQ_API_KEY || "")
+  .split(",")
+  .map(k => k.trim())
+  .filter(k => k.length > 0);
 
 const PUTER_API_URL = "https://api.puter.com/puterai/openai/v1/chat/completions";
 const PUTER_AUTH_TOKEN = process.env.PUTER_AUTH_TOKEN ?? "";
