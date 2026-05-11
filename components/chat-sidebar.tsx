@@ -356,30 +356,7 @@ export function ChatSidebar({
 
             {/* Recents section */}
             <div className="flex-1 overflow-y-auto px-2 pt-4">
-              {/* Quick Connectors Group */}
-              <div className="mb-4">
-                <div className="text-[11px] font-medium text-muted-foreground/70 px-2 py-1 uppercase tracking-wider">
-                  Active Connectors
-                </div>
-                <div className="grid grid-cols-4 gap-1 px-1">
-                  {['github', 'notion', 'vercel', 'slack'].map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => window.location.href = `/api/mcp/oauth/${p}/start`}
-                      title={`Connect ${p}`}
-                      className="flex items-center justify-center p-2 rounded-lg bg-accent/30 hover:bg-accent/60 border border-border/50 transition-all"
-                    >
-                      <Image
-                        src={`/uncgpt.png`} // Use provider icons if you have them
-                        alt={p}
-                        width={18}
-                        height={18}
-                        className="opacity-70 group-hover:opacity-100 grayscale hover:grayscale-0"
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
+
 
               <div className="text-xs font-medium text-muted-foreground px-2 pb-2">
                 Recents
