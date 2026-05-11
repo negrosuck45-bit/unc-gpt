@@ -31,7 +31,6 @@ import { ImageEditDialog } from "./image-edit-dialog"
 
 import Image from "next/image"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { OAuthConnectors } from "./oauth-connectors"
 
 // Map model families to their icon filenames (stored in /public)
 const familyIcons: Record<string, string> = {
@@ -430,8 +429,6 @@ export function ChatHeader({ project, chat, activeModelInfo, onOpenSidebar, isSi
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* OAuth Connectors */}
-        <OAuthConnectors />
       </header>
       </div>
 

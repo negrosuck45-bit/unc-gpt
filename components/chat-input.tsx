@@ -467,10 +467,25 @@ export function ChatInput({
                     <Plus className="h-5 w-5" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent align="start" className="w-48 p-1">
+                <PopoverContent align="start" className="w-56 p-1">
                   <button onClick={() => imageInputRef.current?.click()} className="flex w-full items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent"><ImageIcon className="h-4 w-4" /> Images</button>
                   <button onClick={() => fileInputRef.current?.click()} className="flex w-full items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent"><Paperclip className="h-4 w-4" /> Files</button>
                   <button onClick={() => { setShowLinkInput(true); setAttachMenuOpen(false) }} className="flex w-full items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent"><Globe className="h-4 w-4" /> Link</button>
+                  <div className="my-1 border-t border-border" />
+                  <div className="px-3 py-1 text-xs text-muted-foreground font-medium">Integrations</div>
+                  {[
+                    { name: 'github', label: 'GitHub', icon: '🐙' },
+                    { name: 'linear', label: 'Linear', icon: '📋' },
+                    { name: 'slack', label: 'Slack', icon: '💬' },
+                  ].map((p) => (
+                    <button
+                      key={p.name}
+                      onClick={() => { window.location.href = `/api/mcp/oauth/${p.name}/start`; setAttachMenuOpen(false); }}
+                      className="flex w-full items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent text-sm"
+                    >
+                      <span>{p.icon}</span> Connect {p.label}
+                    </button>
+                  ))}
                 </PopoverContent>
               </Popover>
 

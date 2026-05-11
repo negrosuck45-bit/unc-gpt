@@ -33,7 +33,7 @@ export async function GET(
     return NextResponse.json({ error: "Unknown provider" }, { status: 400 });
   }
 
-  const baseUrl = process.env.OAUTH_REDIRECT_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.OAUTH_REDIRECT_BASE_URL || "https://unc-gpt.vercel.app";
   const redirectUri = `${baseUrl}/api/mcp/oauth/${provider}/callback`;
 
   // Generate CSRF token
