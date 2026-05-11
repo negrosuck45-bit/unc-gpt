@@ -42,18 +42,16 @@ export async function GET(
   const baseUrl = process.env.OAUTH_REDIRECT_BASE_URL || "https://unc-gpt.vercel.app";
   const redirectUri = `${baseUrl}/api/mcp/oauth/${provider}/callback`;
 
-  // Generate CSRF token
   const state = randomBytes(32).toString("hex");
 
   const authUrl = buildAuthUrl(config, redirectUri, state, provider);
 
-  // Store state in cookie for validation in callback
   const response = NextResponse.redirect(authUrl);
   response.cookies.set("oauth_state", state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 600, // 10 minutes
+    maxAge: 600,
   });
 
   return response;
@@ -70,6 +68,7 @@ function buildAuthUrl(
     redirect_uri: redirectUri,
     scope: config.scopes.join(" "),
     state,
+    response_type: "code",
   });
 
   if (provider === "slack") {
