@@ -49,8 +49,9 @@ export async function GET(
   const response = NextResponse.redirect(authUrl);
   response.cookies.set("oauth_state", state, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     sameSite: "lax",
+    path: "/",
     maxAge: 600,
   });
 
