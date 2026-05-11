@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 const OAUTH_CONFIG = {
   github: {
-    clientId: "f61aadc0ab2a1d5a3b7d6940ff31438fb5a52132",
-    clientSecret: "0dcd3af55fcccaa7cd50a0d6a03bbd1d5aa19cd3",
+    clientId: "Ov23liEIVtsLZnu1vy8K",
+    clientSecret: "594ad5a6b65f230e50f3495be5c7451d0ea81f11",
     tokenUrl: "https://github.com/login/oauth/access_token",
   },
   linear: {
@@ -48,7 +48,6 @@ export async function GET(
     return NextResponse.json({ error: "Missing code" }, { status: 400 });
   }
 
-  // Provider-specific state cookie
   const storedState = request.cookies.get(`oauth_state_${provider}`)?.value;
   
   if (!state || state !== storedState) {
@@ -59,7 +58,6 @@ export async function GET(
         hasState: !!state,
         hasStoredState: !!storedState,
         statesMatch: state === storedState,
-        cookieName: `oauth_state_${provider}`,
       }
     }, { status: 400 });
   }
@@ -103,7 +101,6 @@ export async function GET(
         body: formData,
       });
     } else {
-      // GitHub — JSON with Accept header
       tokenResponse = await fetch(config.tokenUrl, {
         method: "POST",
         headers: {
@@ -154,7 +151,6 @@ export async function GET(
       maxAge: 30 * 24 * 60 * 60,
     });
 
-    // Delete provider-specific state cookie
     response.cookies.delete(`oauth_state_${provider}`);
 
     return response;
