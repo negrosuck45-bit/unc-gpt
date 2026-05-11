@@ -48,9 +48,24 @@ export async function GET(
     return NextResponse.json({ error: "Missing code" }, { status: 400 });
   }
 
+  // Debug: log all cookies to see what's coming through
+  console.log("Callback cookies:", request.cookies.getAll().map(c => c.name));
+  console.log("Expected state:", state);
+
   const storedState = request.cookies.get("oauth_state")?.value;
+  
+  // Debug: log the stored state
+  console.log("Stored state:", storedState);
+
   if (!state || state !== storedState) {
-    return NextResponse.json({ error: "State mismatch" }, { status: 400 });
+    return NextResponse.json({ 
+      error: "State mismatch",
+      debug: {
+        hasState: !!state,
+        hasStoredState: !!storedState,
+        statesMatch: state === storedState,
+      }
+    }, { status: 400 });
   }
 
   try {
@@ -114,14 +129,16 @@ export async function GET(
 
     response.cookies.set(`mcp_oauth_${provider}`, accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "lax",
+      path: "/",
       maxAge: 30 * 24 * 60 * 60,
     });
 
     response.cookies.set(`mcp_oauth_${provider}_connected`, "1", {
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "lax",
+      path: "/",
       maxAge: 30 * 24 * 60 * 60,
     });
 
