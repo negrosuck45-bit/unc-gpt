@@ -3,8 +3,8 @@ import { randomBytes } from "crypto";
 
 const OAUTH_CONFIG = {
   github: {
-    clientId: "f61aadc0ab2a1d5a3b7d6940ff31438fb5a52132",
-    clientSecret: "0dcd3af55fcccaa7cd50a0d6a03bbd1d5aa19cd3",
+    clientId: "Ov23liEIVtsLZnu1vy8K",
+    clientSecret: "594ad5a6b65f230e50f3495be5c7451d0ea81f11",
     authUrl: "https://github.com/login/oauth/authorize",
     scopes: ["repo", "user"],
   },
@@ -47,8 +47,6 @@ export async function GET(
   const authUrl = buildAuthUrl(config, redirectUri, state, provider);
 
   const response = NextResponse.redirect(authUrl);
-  
-  // Provider-specific state cookie to avoid cross-contamination
   response.cookies.set(`oauth_state_${provider}`, state, {
     httpOnly: true,
     secure: true,
