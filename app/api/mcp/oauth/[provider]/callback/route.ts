@@ -20,9 +20,15 @@ const OAUTH_CONFIG = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { provider: string } }
+  { params }: { params: Promise<{ provider: string }> }
 ) {
-  const provider = params.provider.toLowerCase();
+  const { provider: providerParam } = await params;
+  
+  if (!providerParam) {
+    return NextResponse.json({ error: "Provider parameter is required" }, { status: 400 });
+  }
+  
+  const provider = providerParam.toLowerCase();
   const config = OAUTH_CONFIG[provider as keyof typeof OAUTH_CONFIG];
 
   if (!config) {
@@ -34,52 +40,80 @@ export async function GET(
   const state = searchParams.get("state");
   const error = searchParams.get("error");
 
-  // Check for OAuth errors
   if (error) {
     return NextResponse.json({ error }, { status: 400 });
-  }
-
-  // Verify CSRF token
-  const storedState = request.cookies.get(`oauth_${provider}_state`)?.value;
-  if (!state || state !== storedState) {
-    return NextResponse.json({ error: "State mismatch" }, { status: 400 });
   }
 
   if (!code) {
     return NextResponse.json({ error: "Missing code" }, { status: 400 });
   }
 
+  // Verify CSRF token - MUST match the cookie name set in start/route.ts
+  const storedState = request.cookies.get("oauth_state")?.value;
+  if (!state || state !== storedState) {
+    return NextResponse.json({ error: "State mismatch" }, { status: 400 });
+  }
+
   try {
-    const baseUrl = process.env.OAUTH_REDIRECT_BASE_URL || "http://localhost:3000";
+    const baseUrl = process.env.OAUTH_REDIRECT_BASE_URL || "https://unc-gpt.vercel.app";
     const redirectUri = `${baseUrl}/api/mcp/oauth/${provider}/callback`;
 
-    // Exchange code for token
-    const tokenResponse = await fetch(config.tokenUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
+    let tokenResponse;
+    let tokenData;
+
+    if (provider === "slack") {
+      // Slack requires form-encoded body
+      const formData = new URLSearchParams({
         client_id: config.clientId,
-        client_secret: config.clientSecret,
+        client_secret: config.clientSecret || "",
         code,
         redirect_uri: redirectUri,
-      }),
-    });
+      });
 
-    const tokenData = await tokenResponse.json();
+      tokenResponse = await fetch(config.tokenUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData,
+      });
+    } else {
+      // GitHub and Linear use JSON
+      tokenResponse = await fetch(config.tokenUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          client_id: config.clientId,
+          client_secret: config.clientSecret,
+          code,
+          redirect_uri: redirectUri,
+        }),
+      });
+    }
 
-    if (!tokenData.access_token && !tokenData.token) {
+    tokenData = await tokenResponse.json();
+
+    if (!tokenResponse.ok) {
       return NextResponse.json(
-        { error: "Failed to get access token" },
+        { error: "Token exchange failed", details: tokenData },
         { status: 400 }
       );
     }
 
-    const accessToken = tokenData.access_token || tokenData.token;
+    // Slack returns token in `access_token`, GitHub in `access_token`, check both
+    const accessToken = tokenData.access_token || tokenData.authed_user?.access_token;
 
-    // Create response that redirects back to app
+    if (!accessToken) {
+      return NextResponse.json(
+        { error: "Failed to get access token", details: tokenData },
+        { status: 400 }
+      );
+    }
+
+    // Redirect back to app
     const response = NextResponse.redirect(`${baseUrl}/`);
 
     // Store token in httpOnly cookie
@@ -87,10 +121,10 @@ export async function GET(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 30 * 24 * 60 * 60, // 30 days
+      maxAge: 30 * 24 * 60 * 60,
     });
 
-    // Store connection status in non-httpOnly cookie (for UI)
+    // Store connection status for UI
     response.cookies.set(`mcp_oauth_${provider}_connected`, "1", {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -98,7 +132,7 @@ export async function GET(
     });
 
     // Clear state cookie
-    response.cookies.delete(`oauth_${provider}_state`);
+    response.cookies.delete("oauth_state");
 
     return response;
   } catch (error) {
