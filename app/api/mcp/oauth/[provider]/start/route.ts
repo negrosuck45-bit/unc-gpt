@@ -3,7 +3,7 @@ import { randomBytes } from "crypto";
 
 const OAUTH_CONFIG = {
   github: {
-    clientId: process.env.GITHUB_CLIENT_ID || "f61aadc0ab2a1d3a3b7d6940ff31438fb5a52132",
+    clientId: process.env.GITHUB_CLIENT_ID || "f61aadc0ab2a1d5a3b7d6940ff31438fb5a52132",
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
     authUrl: "https://github.com/login/oauth/authorize",
     scopes: ["repo", "user"],
@@ -24,9 +24,15 @@ const OAUTH_CONFIG = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { provider: string } }
+  { params }: { params: Promise<{ provider: string }> }
 ) {
-  const provider = params.provider.toLowerCase();
+  const { provider: providerParam } = await params;
+  
+  if (!providerParam) {
+    return NextResponse.json({ error: "Provider parameter is required" }, { status: 400 });
+  }
+  
+  const provider = providerParam.toLowerCase();
   const config = OAUTH_CONFIG[provider as keyof typeof OAUTH_CONFIG];
 
   if (!config) {
@@ -39,12 +45,11 @@ export async function GET(
   // Generate CSRF token
   const state = randomBytes(32).toString("hex");
 
-  // Store state in cookie (expires in 10 minutes)
-  const response = NextResponse.redirect(
-    buildAuthUrl(config, redirectUri, state, provider)
-  );
+  const authUrl = buildAuthUrl(config, redirectUri, state, provider);
 
-  response.cookies.set(`oauth_${provider}_state`, state, {
+  // Store state in cookie for validation in callback
+  const response = NextResponse.redirect(authUrl);
+  response.cookies.set("oauth_state", state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
