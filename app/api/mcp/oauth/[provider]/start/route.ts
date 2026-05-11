@@ -47,7 +47,9 @@ export async function GET(
   const authUrl = buildAuthUrl(config, redirectUri, state, provider);
 
   const response = NextResponse.redirect(authUrl);
-  response.cookies.set("oauth_state", state, {
+  
+  // Provider-specific state cookie to avoid cross-contamination
+  response.cookies.set(`oauth_state_${provider}`, state, {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
