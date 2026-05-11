@@ -50,6 +50,14 @@ export async function GET(
 
   const storedState = request.cookies.get(`oauth_state_${provider}`)?.value;
   
+  // Debug logging to see what's happening
+  console.log("OAuth callback debug:", {
+    provider,
+    urlState: state,
+    cookieState: storedState,
+    allCookies: request.cookies.getAll().map(c => c.name),
+  });
+
   if (!state || state !== storedState) {
     return NextResponse.json({ 
       error: "State mismatch",
@@ -58,6 +66,8 @@ export async function GET(
         hasState: !!state,
         hasStoredState: !!storedState,
         statesMatch: state === storedState,
+        urlState: state?.slice(0, 20),
+        cookieState: storedState?.slice(0, 20),
       }
     }, { status: 400 });
   }
@@ -139,14 +149,14 @@ export async function GET(
     response.cookies.set(`mcp_oauth_${provider}`, accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "lax",
+      sameSite: "none",
       path: "/",
       maxAge: 30 * 24 * 60 * 60,
     });
 
     response.cookies.set(`mcp_oauth_${provider}_connected`, "1", {
       secure: true,
-      sameSite: "lax",
+      sameSite: "none",
       path: "/",
       maxAge: 30 * 24 * 60 * 60,
     });
