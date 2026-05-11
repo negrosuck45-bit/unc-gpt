@@ -48,7 +48,6 @@ export async function GET(
     return NextResponse.json({ error: "Missing code" }, { status: 400 });
   }
 
-  // Verify CSRF token - MUST match the cookie name set in start/route.ts
   const storedState = request.cookies.get("oauth_state")?.value;
   if (!state || state !== storedState) {
     return NextResponse.json({ error: "State mismatch" }, { status: 400 });
@@ -62,7 +61,6 @@ export async function GET(
     let tokenData;
 
     if (provider === "slack") {
-      // Slack requires form-encoded body
       const formData = new URLSearchParams({
         client_id: config.clientId,
         client_secret: config.clientSecret || "",
@@ -78,7 +76,6 @@ export async function GET(
         body: formData,
       });
     } else {
-      // GitHub and Linear use JSON
       tokenResponse = await fetch(config.tokenUrl, {
         method: "POST",
         headers: {
@@ -103,7 +100,6 @@ export async function GET(
       );
     }
 
-    // Slack returns token in `access_token`, GitHub in `access_token`, check both
     const accessToken = tokenData.access_token || tokenData.authed_user?.access_token;
 
     if (!accessToken) {
@@ -113,10 +109,8 @@ export async function GET(
       );
     }
 
-    // Redirect back to app
     const response = NextResponse.redirect(`${baseUrl}/`);
 
-    // Store token in httpOnly cookie
     response.cookies.set(`mcp_oauth_${provider}`, accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -124,14 +118,12 @@ export async function GET(
       maxAge: 30 * 24 * 60 * 60,
     });
 
-    // Store connection status for UI
     response.cookies.set(`mcp_oauth_${provider}_connected`, "1", {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60,
     });
 
-    // Clear state cookie
     response.cookies.delete("oauth_state");
 
     return response;
