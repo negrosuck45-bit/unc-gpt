@@ -3,20 +3,20 @@ import { randomBytes } from "crypto";
 
 const OAUTH_CONFIG = {
   github: {
-    clientId: process.env.GITHUB_CLIENT_ID || "f61aadc0ab2a1d5a3b7d6940ff31438fb5a52132",
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    clientId: "f61aadc0ab2a1d5a3b7d6940ff31438fb5a52132",
+    clientSecret: "YOUR_GITHUB_CLIENT_SECRET_HERE", // <-- REPLACE THIS
     authUrl: "https://github.com/login/oauth/authorize",
     scopes: ["repo", "user"],
   },
   linear: {
-    clientId: process.env.LINEAR_CLIENT_ID || "f977b36deb20417ea5a13400c7fc7ed7",
-    clientSecret: process.env.LINEAR_CLIENT_SECRET || "af95b0553d0dc9c00f98f3e5f7d5194b",
+    clientId: "f977b36deb20417ea5a13400c7fc7ed7",
+    clientSecret: "YOUR_LINEAR_CLIENT_SECRET_HERE", // <-- REPLACE THIS
     authUrl: "https://linear.app/oauth/authorize",
     scopes: ["read", "write", "issues:create"],
   },
   slack: {
-    clientId: process.env.SLACK_CLIENT_ID || "11100863267972.11095194503062",
-    clientSecret: process.env.SLACK_CLIENT_SECRET || "c6f76d0fda5d6dbcbbae722cf3da0e8c",
+    clientId: "11100863267972.11095194503062",
+    clientSecret: "YOUR_SLACK_CLIENT_SECRET_HERE", // <-- REPLACE THIS
     authUrl: "https://slack.com/oauth/v2/authorize",
     scopes: ["chat:write", "channels:read", "channels:history", "users:read"],
   },
