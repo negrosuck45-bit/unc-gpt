@@ -50,7 +50,7 @@ export async function GET(
   response.cookies.set(`oauth_state_${provider}`, state, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "none",  // REQUIRED for OAuth cross-site redirects
     path: "/",
     maxAge: 600,
   });
