@@ -83,6 +83,7 @@ export async function GET(
           Accept: "application/json",
         },
         body: JSON.stringify({
+          grant_type: "authorization_code",  // REQUIRED for Linear
           client_id: config.clientId,
           client_secret: config.clientSecret,
           code,
