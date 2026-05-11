@@ -48,15 +48,18 @@ export async function GET(
     return NextResponse.json({ error: "Missing code" }, { status: 400 });
   }
 
-  const storedState = request.cookies.get("oauth_state")?.value;
+  // Provider-specific state cookie
+  const storedState = request.cookies.get(`oauth_state_${provider}`)?.value;
   
   if (!state || state !== storedState) {
     return NextResponse.json({ 
       error: "State mismatch",
       debug: {
+        provider,
         hasState: !!state,
         hasStoredState: !!storedState,
         statesMatch: state === storedState,
+        cookieName: `oauth_state_${provider}`,
       }
     }, { status: 400 });
   }
@@ -84,7 +87,6 @@ export async function GET(
         body: formData,
       });
     } else if (provider === "linear") {
-      // Linear requires form-encoded with grant_type
       const formData = new URLSearchParams({
         grant_type: "authorization_code",
         client_id: config.clientId,
@@ -152,7 +154,8 @@ export async function GET(
       maxAge: 30 * 24 * 60 * 60,
     });
 
-    response.cookies.delete("oauth_state");
+    // Delete provider-specific state cookie
+    response.cookies.delete(`oauth_state_${provider}`);
 
     return response;
   } catch (error) {
