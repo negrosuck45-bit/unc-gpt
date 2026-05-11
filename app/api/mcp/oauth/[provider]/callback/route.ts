@@ -48,15 +48,8 @@ export async function GET(
     return NextResponse.json({ error: "Missing code" }, { status: 400 });
   }
 
-  // Debug: log all cookies to see what's coming through
-  console.log("Callback cookies:", request.cookies.getAll().map(c => c.name));
-  console.log("Expected state:", state);
-
   const storedState = request.cookies.get("oauth_state")?.value;
   
-  // Debug: log the stored state
-  console.log("Stored state:", storedState);
-
   if (!state || state !== storedState) {
     return NextResponse.json({ 
       error: "State mismatch",
@@ -90,7 +83,25 @@ export async function GET(
         },
         body: formData,
       });
+    } else if (provider === "linear") {
+      // Linear requires form-encoded with grant_type
+      const formData = new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        code,
+        redirect_uri: redirectUri,
+      });
+
+      tokenResponse = await fetch(config.tokenUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData,
+      });
     } else {
+      // GitHub — JSON with Accept header
       tokenResponse = await fetch(config.tokenUrl, {
         method: "POST",
         headers: {
@@ -98,7 +109,6 @@ export async function GET(
           Accept: "application/json",
         },
         body: JSON.stringify({
-          grant_type: "authorization_code",
           client_id: config.clientId,
           client_secret: config.clientSecret,
           code,
