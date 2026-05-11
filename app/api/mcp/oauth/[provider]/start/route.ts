@@ -4,19 +4,19 @@ import { randomBytes } from "crypto";
 const OAUTH_CONFIG = {
   github: {
     clientId: "f61aadc0ab2a1d5a3b7d6940ff31438fb5a52132",
-    clientSecret: "YOUR_GITHUB_CLIENT_SECRET_HERE", // <-- REPLACE THIS
+    clientSecret: "0dcd3af55fcccaa7cd50a0d6a03bbd1d5aa19cd3",
     authUrl: "https://github.com/login/oauth/authorize",
     scopes: ["repo", "user"],
   },
   linear: {
     clientId: "f977b36deb20417ea5a13400c7fc7ed7",
-    clientSecret: "YOUR_LINEAR_CLIENT_SECRET_HERE", // <-- REPLACE THIS
+    clientSecret: "af95b0553d0dc9c00f98f3e5f7d5194b",
     authUrl: "https://linear.app/oauth/authorize",
     scopes: ["read", "write", "issues:create"],
   },
   slack: {
     clientId: "11100863267972.11095194503062",
-    clientSecret: "YOUR_SLACK_CLIENT_SECRET_HERE", // <-- REPLACE THIS
+    clientSecret: "c6f76d0fda5d6dbcbbae722cf3da0e8c",
     authUrl: "https://slack.com/oauth/v2/authorize",
     scopes: ["chat:write", "channels:read", "channels:history", "users:read"],
   },
