@@ -1,56 +1,70 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 
-const OAUTH_CONFIG = {
+type OAuthProvider = "github" | "linear" | "slack";
+
+type OAuthConfig = {
+  clientId: string;
+  clientSecret: string;
+  authUrl: string;
+  scopes: string[];
+};
+
+const PROVIDER_CONFIG: Record<OAuthProvider, Omit<OAuthConfig, "clientId" | "clientSecret">> = {
   github: {
-    clientId: "Ov23liEIVtsLZnu1vy8K",
-    clientSecret: "594ad5a6b65f230e50f3495be5c7451d0ea81f11",
     authUrl: "https://github.com/login/oauth/authorize",
     scopes: ["repo", "user"],
   },
   linear: {
-    clientId: "f977b36deb20417ea5a13400c7fc7ed7",
-    clientSecret: "af95b0553d0dc9c00f98f3e5f7d5194b",
     authUrl: "https://linear.app/oauth/authorize",
     scopes: ["read", "write", "issues:create"],
   },
   slack: {
-    clientId: "11100863267972.11095194503062",
-    clientSecret: "c6f76d0fda5d6dbcbbae722cf3da0e8c",
     authUrl: "https://slack.com/oauth/v2/authorize",
     scopes: ["chat:write", "channels:read", "channels:history", "users:read"],
   },
 };
+
+function getOAuthConfig(provider: OAuthProvider): OAuthConfig | null {
+  const base = PROVIDER_CONFIG[provider];
+  if (!base) return null;
+
+  const envPrefix = provider.toUpperCase();
+  const clientId = process.env[`${envPrefix}_CLIENT_ID`];
+  const clientSecret = process.env[`${envPrefix}_CLIENT_SECRET`];
+  if (!clientId || !clientSecret) return null;
+
+  return { ...base, clientId, clientSecret };
+}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ provider: string }> }
 ) {
   const { provider: providerParam } = await params;
-  
   if (!providerParam) {
     return NextResponse.json({ error: "Provider parameter is required" }, { status: 400 });
   }
-  
-  const provider = providerParam.toLowerCase();
-  const config = OAUTH_CONFIG[provider as keyof typeof OAUTH_CONFIG];
 
+  const provider = providerParam.toLowerCase() as OAuthProvider;
+  const config = getOAuthConfig(provider);
   if (!config) {
-    return NextResponse.json({ error: "Unknown provider" }, { status: 400 });
+    return NextResponse.json(
+      { error: "This connector is not configured yet. Add its server-side OAuth credentials first." },
+      { status: 503 }
+    );
   }
 
-  const baseUrl = process.env.OAUTH_REDIRECT_BASE_URL || "https://unc-gpt.vercel.app";
+  const baseUrl = process.env.OAUTH_REDIRECT_BASE_URL || request.nextUrl.origin;
   const redirectUri = `${baseUrl}/api/mcp/oauth/${provider}/callback`;
-
   const state = randomBytes(32).toString("hex");
-
   const authUrl = buildAuthUrl(config, redirectUri, state, provider);
 
   const response = NextResponse.redirect(authUrl);
   response.cookies.set(`oauth_state_${provider}`, state, {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",  // REQUIRED for OAuth cross-site redirects
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     path: "/",
     maxAge: 600,
   });
@@ -59,10 +73,10 @@ export async function GET(
 }
 
 function buildAuthUrl(
-  config: (typeof OAUTH_CONFIG)[keyof typeof OAUTH_CONFIG],
+  config: OAuthConfig,
   redirectUri: string,
   state: string,
-  provider: string
+  provider: OAuthProvider
 ): string {
   const params = new URLSearchParams({
     client_id: config.clientId,

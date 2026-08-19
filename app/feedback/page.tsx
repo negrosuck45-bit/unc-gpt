@@ -4,7 +4,9 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, X, Check, Trash2, Wand2, LogOut, Settings, Shield, ShieldCheck, Loader2, Bug, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
+import { getSupabase } from "@/lib/supabase";
+
+export const dynamic = "force-dynamic";
 
 interface FeedbackItem {
   id: string;
@@ -15,7 +17,7 @@ interface FeedbackItem {
   fixContent?: string;
 }
 
-const supabase = createClient();
+const supabase = getSupabase();
 
 export default function FeedbackPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -36,8 +38,12 @@ export default function FeedbackPage() {
   // Load feedback from Supabase
   const loadFeedback = useCallback(async () => {
     console.log('[FeedbackPage] Loading from Supabase...');
-    setLoading(true);
-
+        setLoading(true);
+    if (!supabase) {
+      setFeedbackItems([]);
+      setLoading(false);
+      return;
+    }
     try {
       const { data, error } = await supabase
         .from('message_feedback')
@@ -88,6 +94,7 @@ export default function FeedbackPage() {
 
   // Dismiss feedback - deletes from Supabase
   const dismissFeedback = async (itemId: string) => {
+    if (!supabase) return;
     try {
       const { error } = await supabase
         .from('message_feedback')
@@ -299,6 +306,7 @@ export default function FeedbackPage() {
 
   // Debug: add test feedback directly to Supabase
   const addTestFeedback = async () => {
+    if (!supabase) return;
     try {
       const { data, error } = await supabase
         .from('message_feedback')
