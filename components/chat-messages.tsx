@@ -31,7 +31,7 @@ import { Button } from '@/components/ui/button';
 import { SearchResults, type SearchResult } from './search-results';
 import { MarsAvatar } from './mars-avatar';
 import { useChatStore, type ModelFamily } from '@/lib/chat-store';
-import { createClient } from '@/lib/supabase/client';
+import { getSupabase } from '@/lib/supabase';
 
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -332,7 +332,7 @@ function SearchIndicator({ searchInfo }: { searchInfo: SearchInfoType }) {
 }
 
 // ---------- Supabase feedback helpers ----------
-const supabase = createClient();
+const supabase = getSupabase();
 
 async function saveFeedbackToSupabase(
   messageId: string,
@@ -341,6 +341,7 @@ async function saveFeedbackToSupabase(
   reason?: string,
   issueType?: string
 ) {
+  if (!supabase) return null;
   try {
     const { data, error } = await supabase
       .from('message_feedback')
@@ -371,6 +372,7 @@ async function saveFeedbackToSupabase(
 }
 
 async function getFeedbackFromSupabase(messageId: string): Promise<'like' | 'dislike' | null> {
+  if (!supabase) return null;
   try {
     const { data, error } = await supabase
       .from('message_feedback')

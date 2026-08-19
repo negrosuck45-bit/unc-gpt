@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { executeAgentTool, fetchAgentTools, type AgentGatewayTool } from "@/lib/agent-gateway";
 
 export const runtime = "nodejs";
 
@@ -498,7 +499,9 @@ async function runGroqWithTools(messages: any[], tools: any[], baseUrl: string):
       if (tool) {
         try {
           const args = JSON.parse(tc.function.arguments || "{}");
-          toolResult = await executeMcpTool(tool, args, baseUrl);
+          toolResult = tool?._remote
+            ? await executeAgentTool(tool as AgentGatewayTool, args)
+            : await executeMcpTool(tool, args, baseUrl);
         } catch (e: any) {
           toolResult = `Tool error: ${e.message}`;
         }
@@ -798,6 +801,7 @@ export async function POST(req: NextRequest) {
       anthropicApiKey,
       source, // <-- NEW: "chat", "voice", "imagine"
       mcpConnectors, // <-- NEW: array of enabled MCP connector configs
+      agentComputerEnabled = false,
     } = body;
 
     const finalModel = preferredModel || model || "auto";
@@ -877,24 +881,31 @@ export async function POST(req: NextRequest) {
       ...apiMessages,
     ];
 
-    // ==================== MCP TOOL-CALLING LOOP ====================
-    // If MCP connectors are provided, fetch their tools and let the model use them.
-    // The accumulated conversation (incl. tool results) is then streamed normally.
+    // ==================== TOOL-CALLING LOOP ====================
+    // MCP connectors and the isolated cloud computer are opt-in per request.
+    const enabledTools: any[] = [];
     if (Array.isArray(mcpConnectors) && mcpConnectors.length > 0) {
       try {
-        const tools = await fetchMcpTools(mcpConnectors, baseUrl);
-        if (tools.length > 0) {
-          messagesWithSystem[0] = {
-            role: "system",
-            content:
-              systemParts.join("") +
-              `\n\nYou have access to ${tools.length} MCP tools. Call them when useful, then explain the result to the user.`,
-          };
-          messagesWithSystem = await runGroqWithTools(messagesWithSystem, tools, baseUrl);
-        }
+        enabledTools.push(...await fetchMcpTools(mcpConnectors, baseUrl));
       } catch (e: any) {
-        console.error("MCP loop error:", e.message);
+        console.error("MCP tool discovery error:", e.message);
       }
+    }
+    if (agentComputerEnabled === true && process.env.AGENT_GATEWAY_URL) {
+      try {
+        enabledTools.push(...await fetchAgentTools());
+      } catch (e: any) {
+        console.error("Agent tool discovery error:", e.message);
+      }
+    }
+    if (enabledTools.length > 0) {
+      messagesWithSystem[0] = {
+        role: "system",
+        content:
+          systemParts.join("") +
+          `\n\nYou have access to ${enabledTools.length} enabled tools. Use them only when needed. For irreversible actions, explain the planned action and wait for explicit user approval before calling the tool.`,
+      };
+      messagesWithSystem = await runGroqWithTools(messagesWithSystem, enabledTools, baseUrl);
     }
 
     let result: { stream: ReadableStream; provider: string; model: string };

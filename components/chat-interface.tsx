@@ -6,6 +6,7 @@ import { ChatMessages } from "@/components/chat-messages";
 import { ChatInput } from "@/components/chat-input";
 import { WelcomeScreen } from "@/components/welcome-screen";
 import { ChatHeader } from "@/components/chat-header";
+import { AgentComputerCard } from "@/components/agent-computer-card";
 
 interface ChatInterfaceProps {
   onSwitchToImagine?: () => void;
@@ -17,6 +18,7 @@ export function ChatInterface({ onSwitchToImagine, onOpenSidebar, isSidebarOpen 
   const [mounted, setMounted] = useState(false);
   const [activeModelInfo, setActiveModelInfo] = useState<{ provider: string; model: string } | null>(null);
   const [isThinking, setIsThinking] = useState(false);
+  const [agentComputerEnabled, setAgentComputerEnabled] = useState(false);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const pendingAssistantIdRef = useRef<string | null>(null);
@@ -42,6 +44,16 @@ export function ChatInterface({ onSwitchToImagine, onOpenSidebar, isSidebarOpen 
 
   useEffect(() => {
     setMounted(true);
+    try {
+      setAgentComputerEnabled(localStorage.getItem("uncgpt-agent-computer") === "on");
+    } catch {}
+  }, []);
+
+  const handleAgentComputerChange = useCallback((enabled: boolean) => {
+    setAgentComputerEnabled(enabled);
+    try {
+      localStorage.setItem("uncgpt-agent-computer", enabled ? "on" : "off");
+    } catch {}
   }, []);
 
   const currentChat = getCurrentChat();
@@ -152,6 +164,7 @@ export function ChatInterface({ onSwitchToImagine, onOpenSidebar, isSidebarOpen 
       messages: formattedMessages,
       preferredModel: selectedModel,
       preferredProvider: selectedProvider,
+      agentComputerEnabled,
     };
 
     if (selectedProvider === "anthropic" && settings.anthropicApiKey) {
@@ -289,6 +302,7 @@ export function ChatInterface({ onSwitchToImagine, onOpenSidebar, isSidebarOpen 
 
       <div className="chat-input-footer w-full flex-shrink-0">
         <div className="px-3 pt-3 pb-2 max-w-4xl mx-auto w-full">
+          <AgentComputerCard enabled={agentComputerEnabled} onChange={handleAgentComputerChange} />
           <ChatInput
             onSend={handleSend}
             onStop={() => abortControllerRef.current?.abort()}
